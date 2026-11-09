@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>♡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#232328;--paper:#fffdf9;--soft:#ecebe8;--pink:#ff8fb8;--red:#ff4d5e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#0b0b0d;overflow:hidden;font-family:'Itim',system-ui,sans-serif;color:var(--ink);user-select:none;-webkit-user-select:none}
+#stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:1280px;height:720px;overflow:hidden;background:#000;font-size:16px}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:crisp-edges;image-rendering:pixelated}
+.hide{display:none!important}
+.layer{position:absolute;inset:0;pointer-events:none}
+#hearts,#ingr,#boss,#prompt,#hint,#mash,#sub,#credits,#whud,#count,#toast,#vignette,#danger{pointer-events:none}
+button{font-family:inherit;color:inherit;cursor:pointer}
+
+/* generic chunky card / buttons */
+.card{background:var(--paper);border:.19em solid var(--ink);border-radius:1.1em;box-shadow:.32em .32em 0 var(--ink);padding:1.4em 1.6em;text-align:center}
+.btn{font-size:1.15em;padding:.55em 1.3em;border:.16em solid var(--ink);border-radius:.8em;background:var(--paper);box-shadow:.2em .2em 0 var(--ink);transition:transform .06s}
+.btn:hover{background:#fff}
+.btn:active{transform:translate(.15em,.15em);box-shadow:.05em .05em 0 var(--ink)}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.pinkb{background:var(--pink);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.icon-btn{width:2.7em;height:2.7em;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.25em}
+.modal{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,10,14,.45);pointer-events:auto;z-index:40}
+.modal .card{min-width:22em;max-width:34em;animation:pop .45s cubic-bezier(.2,1.5,.4,1)}
+.modal h2{margin:0 0 .4em;font-weight:400;font-size:1.8em}
+.modal p{margin:.2em 0 1em;font-size:1.1em;line-height:1.5}
+.row{display:flex;gap:.8em;justify-content:center;flex-wrap:wrap}
+
+/* keycaps for the wordless tutorial */
+.key{display:inline-flex;align-items:center;justify-content:center;min-width:2.6em;height:2.6em;padding:0 .6em;margin:.12em;font-size:1.1em;
+  background:#fff;border:.16em solid var(--ink);border-radius:.45em;box-shadow:0 .28em 0 var(--ink);font-weight:700;letter-spacing:.05em}
+.key.wide{min-width:9em}.key.mid{min-width:4.6em}
+.keys-grid{display:inline-grid;grid-template-columns:repeat(3,auto);justify-content:center}
+.keys-grid .key:first-child{grid-column:2}.keys-grid .key:nth-child(2){grid-column:1}
+.plus{font-size:2em;margin:0 .3em;color:#fff;text-shadow:0 .1em 0 var(--ink)}
+#prompt{position:absolute;left:50%;top:12%;transform:translateX(-50%);display:flex;align-items:center;gap:.4em;padding:.9em 1.2em;
+  background:rgba(255,255,255,.18);border-radius:1.2em;backdrop-filter:blur(2px);transition:opacity .3s,transform .3s;z-index:12}
+#prompt.done{opacity:0;transform:translateX(-50%) scale(1.25)}
+#prompt.done::after{content:'✔';position:absolute;right:-.6em;top:-.6em;font-size:2em;color:#fff;background:#3cc46a;border:.12em solid var(--ink);border-radius:50%;width:1.3em;height:1.3em;display:flex;align-items:center;justify-content:center}
+.mouse{width:3.4em;height:5em;border:.18em solid var(--ink);border-radius:1.7em;background:#fff;position:relative;box-shadow:0 .25em 0 var(--ink);display:inline-block}
+.mouse::before{content:'';position:absolute;left:50%;top:0;width:.18em;height:2em;background:var(--ink);transform:translateX(-50%)}
+.mouse::after{content:'';position:absolute;left:0;right:0;top:2em;height:.18em;background:var(--ink)}
+.mouse .lb,.mouse .rb{position:absolute;top:0;width:50%;height:2em;background:transparent}
+.mouse .lb{left:0;border-radius:1.5em 0 0 0}.mouse .rb{right:0;border-radius:0 1.5em 0 0}
+.mouse .on{background:var(--pink);animation:blink .8s infinite}
+.arrows{font-size:2.2em;color:#fff;text-shadow:0 .08em 0 var(--ink);animation:wiggle 1.2s ease-in-out infinite}
+.hold{font-size:.9em;color:#fff;background:var(--ink);border-radius:.4em;padding:.15em .5em;margin-left:.2em}
+
+#hint{position:absolute;transform:translate(-50%,-100%);z-index:11;animation:bob 1s ease-in-out infinite}
+#hint .key{font-size:1em}
+
+/* subtitles */
+#sub{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);max-width:70%;min-width:30%;padding:.7em 1.3em .8em;background:rgba(20,20,24,.78);color:#fff;
+  border-radius:.9em;font-size:1.35em;line-height:1.45;text-align:center;z-index:14}
+#sub .who{display:block;font-size:.72em;color:#ffd38f;margin-bottom:.1em;letter-spacing:.05em}
+
+/* HUD */
+#hearts{position:absolute;left:1.2em;top:1.1em;display:flex;gap:.25em;font-size:1.7em;z-index:10;filter:drop-shadow(.08em .08em 0 var(--ink))}
+#hearts span.off{filter:grayscale(1) opacity(.4)}
+#ingr{position:absolute;left:1.2em;top:3.6em;display:flex;gap:.35em;z-index:10}
+#ingr .slot{width:2.6em;height:2.6em;border:.16em solid var(--ink);border-radius:.6em;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:1.4em;box-shadow:.12em .12em 0 var(--ink)}
+#ingr .slot.off{filter:grayscale(1);opacity:.45}
+#ingr .slot.big{width:3.4em;background:#fff6c8;animation:pulse .8s infinite}
+#boss{position:absolute;left:50%;top:1em;transform:translateX(-50%);width:44%;z-index:10;text-align:center;color:#fff;text-shadow:0 .1em 0 var(--ink)}
+#boss .name{font-size:1.2em;margin-bottom:.25em}
+#boss .bar{display:flex;gap:.18em;padding:.25em;background:var(--ink);border-radius:.5em}
+#boss .bar i{flex:1;height:.9em;background:#f4f4f4;border-radius:.2em}
+#boss .bar i.off{background:#55555c}
+#boss.rage .bar i:not(.off){background:#ff7a3c;box-shadow:0 0 .6em #ff6a1a}
+#mash{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);text-align:center;z-index:15}
+#mash .key{animation:mashk .18s infinite alternate}
+#mash .meter{width:14em;height:.9em;margin:.7em auto 0;background:rgba(0,0,0,.5);border:.14em solid var(--ink);border-radius:.5em;overflow:hidden}
+#mash .meter i{display:block;height:100%;width:0;background:var(--pink)}
+#vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 8em 2em rgba(255,40,60,.75);opacity:0;transition:opacity .4s;z-index:9}
+#danger{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 10em 1em rgba(0,0,0,.6);opacity:0;z-index:8}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:30;transition:opacity .5s}
+
+/* top-right & top-left buttons */
+#topRight{position:absolute;right:1em;top:1em;z-index:45;pointer-events:auto}
+#newStory{position:absolute;left:1em;top:1em;z-index:25;pointer-events:auto;font-size:1em}
+
+/* title */
+#title{position:absolute;inset:0;z-index:20}
+#logo{position:absolute;left:50%;top:6%;transform:translateX(-50%);text-align:center;color:#fff}
+#logo h1{margin:0;font-weight:400;font-size:4.4em;line-height:1;letter-spacing:.04em;text-shadow:.06em .06em 0 var(--ink),-.03em -.03em 0 var(--ink),.03em -.03em 0 var(--ink),-.03em .03em 0 var(--ink)}
+#logo .en{font-size:1.2em;letter-spacing:.4em;margin-top:.3em;text-shadow:.08em .08em 0 var(--ink)}
+.bubble{position:absolute;transform:translate(-50%,-100%);max-width:20em;padding:.6em 1em;background:#fff;border:.16em solid var(--ink);border-radius:1em;font-size:1.2em;line-height:1.4;
+  box-shadow:.18em .18em 0 var(--ink);text-align:center;z-index:22;animation:pop .35s cubic-bezier(.2,1.5,.4,1)}
+.bubble::after{content:'';position:absolute;left:50%;bottom:-.75em;width:1em;height:1em;background:#fff;border-right:.16em solid var(--ink);border-bottom:.16em solid var(--ink);transform:translateX(-50%) rotate(45deg)}
+#namePanel,#donePanel{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);pointer-events:auto;text-align:center}
+.nameRow{display:flex;gap:.5em;align-items:center;justify-content:center}
+#nameInput{font-family:inherit;font-size:1.5em;width:11em;padding:.35em .7em;border:.14em solid var(--ink);border-radius:.6em;outline:none;text-align:center;box-shadow:.14em .14em 0 var(--ink);user-select:text;-webkit-user-select:text}
+#nameInput.shake{animation:shake .4s}
+.label{color:#fff;font-size:1.15em;margin-bottom:.4em;text-shadow:0 .1em 0 var(--ink)}
+#best{color:#fff;font-size:1.1em;margin-top:.6em;text-shadow:0 .1em 0 var(--ink)}
+#donePanel .btn{font-size:1.5em}
+
+/* pause */
+#pause{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1em;background:rgba(10,10,14,.5);color:#fff;font-size:1.4em;pointer-events:auto;z-index:35;cursor:pointer}
+#pause .big{font-size:2.6em}
+
+/* settings */
+.setRow{display:flex;align-items:center;gap:1em;margin:.7em 0;font-size:1.1em;text-align:left}
+.setRow span{width:6.5em}
+.setRow input[type=range]{flex:1;accent-color:#232328}
+.setRow output{width:2.5em;text-align:right}
+
+/* credits */
+#credits{position:absolute;right:0;top:0;bottom:0;width:44%;background:linear-gradient(90deg,transparent,rgba(20,20,30,.38) 30%);overflow:hidden;z-index:16;color:#fff;text-align:center;
+  -webkit-mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent)}
+#credInner{position:absolute;left:0;right:0;top:0}
+#credInner .title{font-size:2.6em;margin-bottom:.2em;text-shadow:0 .1em 0 rgba(0,0,0,.4)}
+#credInner .role{font-size:.95em;opacity:.8;margin-top:1.4em}
+#credInner .name{font-size:1.4em;text-shadow:0 .08em 0 rgba(0,0,0,.4)}
+#credInner .sec{font-size:1.25em;margin-top:2.6em;color:#ffe08a}
+#credInner .director{margin-top:5em;font-size:1.2em;opacity:.85}
+#credInner .jiw{font-size:6em;letter-spacing:.1em;line-height:1;text-shadow:.05em .05em 0 rgba(0,0,0,.45)}
+#credInner .fin{font-size:1.1em;opacity:.8;margin-top:.6em}
+
+/* whack */
+#whud{position:absolute;left:0;right:0;top:1em;display:flex;justify-content:center;gap:1.2em;z-index:12}
+#whud .pill{background:#fff;border:.16em solid var(--ink);border-radius:.8em;padding:.35em 1em;font-size:1.4em;box-shadow:.16em .16em 0 var(--ink)}
+#combo{color:#e0457b}
+#count{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);font-size:8em;color:#fff;text-shadow:.05em .05em 0 var(--ink);z-index:13;animation:pop .5s}
+#hammerCur{position:absolute;width:5em;height:5em;pointer-events:none;z-index:50;transform-origin:30% 80%;transition:transform .06s}
+#hammerCur .h{position:absolute;left:1.2em;top:.2em;width:3.2em;height:1.9em;background:var(--pink);border:.16em solid var(--ink);border-radius:.4em}
+#hammerCur .h::before,#hammerCur .h::after{content:'';position:absolute;top:-.16em;bottom:-.16em;width:.6em;background:#fff;border:.16em solid var(--ink)}
+#hammerCur .h::before{left:-.5em;border-radius:.3em 0 0 .3em}#hammerCur .h::after{right:-.5em;border-radius:0 .3em .3em 0}
+#hammerCur .s{position:absolute;left:2.5em;top:2em;width:.6em;height:2.6em;background:#d7a878;border:.16em solid var(--ink);border-radius:.2em}
+#hammerCur.down{transform:rotate(-55deg)}
+#pops{position:absolute;inset:0;pointer-events:none;z-index:13}
+.popTxt{position:absolute;transform:translate(-50%,-50%);font-size:2em;color:#fff;text-shadow:.06em .06em 0 var(--ink);animation:rise .8s ease-out forwards}
+.popTxt.bad{color:#ff7a8a}.popTxt.gold{color:#ffd84d}
+#summary .stat{display:flex;justify-content:space-between;font-size:1.2em;margin:.3em 0}
+#summary .score{font-size:3.6em;line-height:1;margin:.1em 0 .2em}
+#summary .newbest{color:#e0457b;font-size:1.2em;animation:pulse .8s infinite}
+
+#fade{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;z-index:60;transition:opacity .8s}
+#toast{position:absolute;left:50%;top:18%;transform:translateX(-50%);background:#fff;border:.16em solid var(--ink);border-radius:.8em;padding:.5em 1.2em;font-size:1.2em;box-shadow:.16em .16em 0 var(--ink);z-index:26;opacity:0;transition:opacity .3s}
+#toast.show{opacity:1}
+
+@keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:none;opacity:1}}
+.bubble{animation-name:popb}
+@keyframes popb{0%{transform:translate(-50%,-100%) scale(.5);opacity:0}100%{transform:translate(-50%,-100%);opacity:1}}
+@keyframes bob{0%,100%{margin-top:0}50%{margin-top:-.35em}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes blink{50%{opacity:.35}}
+@keyframes wiggle{0%,100%{transform:translateX(0)}50%{transform:translateX(.25em)}}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-.5em)}75%{transform:translateX(.5em)}}
+@keyframes mashk{to{transform:translateY(.2em);box-shadow:0 .08em 0 var(--ink)}}
+@keyframes rise{0%{opacity:1;margin-top:0}100%{opacity:0;margin-top:-2em}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <div id="danger"></div>
+  <div id="vignette"></div>
+
+  <!-- in-game HUD -->
+  <div id="hearts" class="hide"></div>
+  <div id="ingr" class="hide"></div>
+  <div id="boss" class="hide"><div class="name">หมียักษ์ใส่แว่น</div><div class="bar"></div></div>
+  <div id="prompt" class="hide"></div>
+  <div id="hint" class="hide"><span class="key">E</span></div>
+  <div id="mash" class="hide"><span class="key wide">SPACE</span><div class="meter"><i></i></div></div>
+  <div id="sub" class="hide"><span class="who"></span><span class="txt"></span></div>
+  <div id="credits" class="hide"><div id="credInner"></div></div>
+
+  <!-- whack-a-bear HUD -->
+  <div id="whud" class="hide"><div class="pill">⏱ <span id="wTime">60</span></div><div class="pill">⭐ <span id="wScore">0</span></div><div class="pill" id="combo"></div></div>
+  <div id="count" class="hide"></div>
+  <div id="pops"></div>
+
+  <!-- title -->
+  <div id="title" class="layer">
+    <div id="bubble" class="bubble hide"></div>
+    <div id="namePanel">
+      <div class="label">ชื่อของเธอคือ…</div>
+      <div class="nameRow">
+        <input id="nameInput" maxlength="20" autocomplete="off" spellcheck="false" placeholder="พิมพ์ชื่อตรงนี้">
+        <button class="btn icon-btn" id="diceBtn" title="สุ่มชื่อ">🎲</button>
+      </div>
+      <div class="row" style="margin-top:.9em">
+        <button class="btn primary" id="startBtn">▶ เริ่มเกม</button>
+        <button class="btn hide" id="contBtn">↻ เล่นต่อจากจุดเซฟ</button>
+      </div>
+    </div>
+    <div id="donePanel" class="hide">
+      <button class="btn pinkb" id="whackBtn">🔨 ทุบหัวหมี!</button>
+      <div id="best"></div>
+    </div>
+  </div>
+  <button class="btn hide" id="newStory">↺ เริ่ม Story ใหม่</button>
+
+  <div id="topRight"><button class="btn icon-btn" id="gearBtn" title="ตั้งค่า">⚙️</button></div>
+  <div id="toast"></div>
+  <div id="flash"></div>
+
+  <!-- overlays -->
+  <div id="pause" class="hide"><div class="big">⏸</div><div><span class="mouse" style="font-size:.5em;vertical-align:middle"><i class="lb on"></i></span>&nbsp; คลิกเพื่อเล่นต่อ</div></div>
+
+  <div id="settings" class="modal hide"><div class="card">
+    <h2>⚙️ ตั้งค่า</h2>
+    <div class="setRow"><span>🎵 เพลง</span><input type="range" id="volMusic" min="0" max="100"><output id="volMusicV"></output></div>
+    <div class="setRow"><span>🔔 เสียงเอฟเฟกต์</span><input type="range" id="volFx" min="0" max="100"><output id="volFxV"></output></div>
+    <div class="row" style="margin-top:1.2em">
+      <button class="btn" id="fsBtn">⛶ เต็มจอ</button>
+      <button class="btn" id="quitBtn">🚪 ออกจากเกม</button>
+      <button class="btn primary" id="setClose">ปิด</button>
+    </div>
+  </div></div>
+
+  <div id="confirm" class="modal hide"><div class="card">
+    <h2>ออกจากเกม?</h2>
+    <p>จะกลับไปที่หน้าแรกนะ<br><small>(ระบบจะจำจุดเซฟล่าสุดไว้ให้)</small></p>
+    <div class="row"><button class="btn" id="cfNo">เล่นต่อ</button><button class="btn primary" id="cfYes">ออกเลย</button></div>
+  </div></div>
+
+  <div id="gameover" class="modal hide"><div class="card">
+    <h2 id="goTitle">โดนจับได้แล้ว…</h2>
+    <p id="goText"></p>
+    <div class="row"><button class="btn" id="goHome">กลับหน้าแรก</button><button class="btn primary" id="goRetry">↻ ลองอีกครั้ง</button></div>
+  </div></div>
+
+  <div id="thanks" class="modal hide"><div class="card">
+    <div style="font-size:4em;line-height:1">🥪</div>
+    <h2>ขอบคุณสำหรับแซนวิชแสนอร่อย</h2>
+    <p>อิ่มแล้ว… ไม่กลายร่างเป็นหมีแล้วน้า 💛</p>
+    <button class="btn primary" id="thanksClose">ปิดเกม</button>
+  </div></div>
+
+  <div id="summary" class="modal hide"><div class="card">
+    <h2>🔨 สรุปคะแนน</h2>
+    <div class="score" id="sScore">0</div>
+    <div class="newbest hide" id="sNew">✨ สถิติใหม่! ✨</div>
+    <div class="stat"><span>ทุบโดนหมี</span><b id="sHits">0</b></div>
+    <div class="stat"><span>หมีทอง</span><b id="sGold">0</b></div>
+    <div class="stat"><span>เผลอทุบเขา</span><b id="sBoy">0</b></div>
+    <div class="stat"><span>คอมโบสูงสุด</span><b id="sCombo">0</b></div>
+    <div class="stat"><span>สถิติสูงสุด</span><b id="sBest">0</b></div>
+    <div class="row" style="margin-top:1em"><button class="btn" id="sHome">กลับหน้าหลัก</button><button class="btn primary" id="sAgain">เล่นอีกครั้ง</button></div>
+  </div></div>
+
+  <div id="hammerCur" class="hide"><div class="s"></div><div class="h"></div></div>
+  <div id="fade"></div>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js"}}</script>
+<script type="module" src="js/game.js"></script>
+</body>
+</html>
